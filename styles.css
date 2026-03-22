@@ -116,7 +116,13 @@ input, select, textarea { font-family: var(--font-body); outline: none; }
   justify-content: center; font-size: 1.5rem; color: var(--white);
 }
 .navbar .logo-img {
-  width: 45px; height: 45px; object-fit: contain;
+  height: 55px; width: auto; object-fit: contain;
+}
+.navbar .logo {
+  display: flex; align-items: center; gap: 10px;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 4px 16px; border-radius: 8px;
+  box-shadow: var(--shadow-sm);
 }
 .navbar .logo-text { font-family: var(--font-primary); font-size: 1.5rem; font-weight: 800; color: var(--white); }
 .navbar .logo-tagline { font-size: 0.65rem; color: var(--peach); letter-spacing: 1.5px; text-transform: uppercase; display: block; margin-top: -4px; }
@@ -132,8 +138,8 @@ input, select, textarea { font-family: var(--font-body); outline: none; }
 .nav-links a:hover { color: var(--white); }
 .nav-links a:hover::after { width: 100%; }
 .nav-cta {
-  background: var(--orange); color: var(--white) !important; padding: 12px 28px;
-  border-radius: 50px; font-weight: 600; font-size: 0.95rem;
+  background: var(--orange); color: var(--white) !important; padding: 14px 32px;
+  border-radius: 50px; font-weight: 700; font-size: 1.05rem;
   transition: var(--transition); border: 2px solid var(--orange);
   white-space: nowrap;
 }
@@ -279,7 +285,7 @@ input, select, textarea { font-family: var(--font-body); outline: none; }
 
 /* ===== PROGRAMS ===== */
 .programs { background: var(--white); }
-.programs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+.programs-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
 .program-card {
   background: var(--white); border-radius: var(--radius-xl); padding: 36px 28px;
   border: 1px solid var(--gray-200); transition: var(--transition);
@@ -688,7 +694,6 @@ input, select, textarea { font-family: var(--font-body); outline: none; }
   .hero-stats { justify-content: center; }
   .hero-visual { display: none; }
   .about-grid { grid-template-columns: 1fr; gap: 40px; }
-  .insurance-wrapper { grid-template-columns: 1fr; }
   .booking-wrapper { grid-template-columns: 1fr; }
   .tour-gallery { grid-template-columns: 1fr 1fr; }
   .tour-item:first-child { grid-column: span 2; }
