@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <!-- Hanuruha Logo - Woman with open arms and leaf petals -->
+  <defs>
+    <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#F08321;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F08321;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Center petal (top) -->
+  <ellipse cx="100" cy="42" rx="7" ry="18" fill="#F08321" transform="rotate(0,100,60)"/>
+  
+  <!-- Left petals -->
+  <ellipse cx="100" cy="42" rx="6" ry="16" fill="#F08321" transform="rotate(-25,100,60)"/>
+  <ellipse cx="100" cy="42" rx="6" ry="16" fill="#F08321" transform="rotate(-50,100,60)"/>
+  <ellipse cx="100" cy="44" rx="5.5" ry="14" fill="#F08321" transform="rotate(-75,100,60)"/>
+  
+  <!-- Right petals -->
+  <ellipse cx="100" cy="42" rx="6" ry="16" fill="#F08321" transform="rotate(25,100,60)"/>
+  <ellipse cx="100" cy="42" rx="6" ry="16" fill="#F08321" transform="rotate(50,100,60)"/>
+  <ellipse cx="100" cy="44" rx="5.5" ry="14" fill="#F08321" transform="rotate(75,100,60)"/>
+  
+  <!-- Head circle -->
+  <circle cx="100" cy="75" r="12" fill="#F08321"/>
+  
+  <!-- Body - curved figure-8 infinity shape representing transformation -->
+  <path d="M100,87 C100,87 85,100 78,115 C71,130 80,148 100,148 C120,148 129,130 122,115 C115,100 100,87 100,87 Z" 
+        fill="none" stroke="#F08321" stroke-width="6" stroke-linecap="round"/>
+  
+  <!-- Arms spread wide -->
+  <path d="M88,100 C80,92 65,82 52,78" fill="none" stroke="#F08321" stroke-width="5.5" stroke-linecap="round"/>
+  <path d="M112,100 C120,92 135,82 148,78" fill="none" stroke="#F08321" stroke-width="5.5" stroke-linecap="round"/>
+  
+  <!-- Small dots at hand tips for elegance -->
+  <circle cx="50" cy="77" r="4" fill="#F08321"/>
+  <circle cx="150" cy="77" r="4" fill="#F08321"/>
+</svg>
