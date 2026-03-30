@@ -124,17 +124,62 @@ document.addEventListener('DOMContentLoaded', () => {
   // ===== INSURANCE FORM STEPS =====
   // Insurance form removed - not supported
 
-  // ===== BOOKING FORM =====
-  document.getElementById('bookingForm').addEventListener('submit', (e) => {
+  // ===== BOOKING FORM → GOOGLE SHEETS =====
+  // ⚠️ REPLACE THIS URL with your deployed Google Apps Script Web App URL
+  const GOOGLE_SCRIPT_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
+
+  document.getElementById('bookingForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = e.target.querySelector('button[type="submit"]');
-    btn.innerHTML = '✓ Consultation Booked Successfully!';
-    btn.style.background = 'linear-gradient(135deg, #2e7d32, #43a047)';
-    setTimeout(() => {
-      btn.innerHTML = '📅 Book Free Consultation';
-      btn.style.background = '';
+    const originalText = btn.innerHTML;
+
+    // Collect form data
+    const formData = {
+      name: document.getElementById('bookName').value,
+      phone: document.getElementById('bookPhone').value,
+      email: document.getElementById('bookEmail').value,
+      type: document.getElementById('bookType').value,
+      date: document.getElementById('bookDate').value,
+      message: document.getElementById('bookMessage').value
+    };
+
+    // Show loading state
+    btn.innerHTML = '⏳ Submitting...';
+    btn.disabled = true;
+    btn.style.opacity = '0.7';
+
+    try {
+      const response = await fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+
+      // With no-cors mode, we can't read the response, but if fetch didn't throw, it was sent
+      btn.innerHTML = '✓ Consultation Booked Successfully!';
+      btn.style.background = 'linear-gradient(135deg, #2e7d32, #43a047)';
+      btn.style.opacity = '1';
       e.target.reset();
-    }, 3000);
+
+      setTimeout(() => {
+        btn.innerHTML = originalText;
+        btn.style.background = '';
+        btn.disabled = false;
+      }, 4000);
+
+    } catch (error) {
+      console.error('Form submission error:', error);
+      btn.innerHTML = '❌ Something went wrong. Try again.';
+      btn.style.background = 'linear-gradient(135deg, #c62828, #e53935)';
+      btn.style.opacity = '1';
+
+      setTimeout(() => {
+        btn.innerHTML = originalText;
+        btn.style.background = '';
+        btn.disabled = false;
+      }, 3000);
+    }
   });
 
   // ===== AI CHAT WIDGET =====
@@ -203,12 +248,97 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.key === 'Enter') sendMessage();
   });
 
+  // ===== GALLERY FILTERING & PAGINATION & AUTOSWIPE =====
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  const galleryItems = document.querySelectorAll('.gallery-item');
+  const pageInfo = document.getElementById('galleryPageInfo');
+  
+  let currentFilter = 'all';
+  let currentPage = 0;
+  let autoSwipeInterval;
+
+  function updateGalleryDisplay() {
+    const itemsPerPageDynamic = window.innerWidth <= 768 ? 1 : (window.innerWidth <= 1024 ? 2 : 3);
+    
+    const filteredItems = Array.from(galleryItems).filter(item => {
+      const match = currentFilter === 'all' || item.classList.contains(currentFilter);
+      if (match) {
+        item.classList.add('show');
+      } else {
+        item.classList.remove('show');
+      }
+      return match;
+    });
+
+    const totalPages = Math.ceil(filteredItems.length / itemsPerPageDynamic);
+    if (currentPage >= totalPages) currentPage = Math.max(0, totalPages - 1);
+    
+    const galleryGrid = document.querySelector('.gallery-grid');
+    if (galleryGrid) {
+      if (filteredItems.length > 0) {
+        const itemWidth = filteredItems[0].offsetWidth;
+        const gap = 20; 
+        const slideAmount = currentPage * itemsPerPageDynamic * (itemWidth + gap);
+        galleryGrid.style.transform = `translateX(-${slideAmount}px)`;
+      } else {
+        galleryGrid.style.transform = `translateX(0px)`;
+      }
+    }
+
+    if (pageInfo) {
+      if (totalPages === 0) {
+        pageInfo.textContent = '0 / 0';
+      } else {
+        pageInfo.textContent = `${currentPage + 1} / ${totalPages}`;
+      }
+    }
+  }
+
+  function startAutoSwipe() {
+    stopAutoSwipe();
+    autoSwipeInterval = setInterval(() => {
+      const itemsPerPageDynamic = window.innerWidth <= 768 ? 1 : (window.innerWidth <= 1024 ? 2 : 3);
+      const filteredItems = Array.from(galleryItems).filter(item => currentFilter === 'all' || item.classList.contains(currentFilter));
+      const totalPages = Math.ceil(filteredItems.length / itemsPerPageDynamic);
+      if (totalPages > 1) {
+        currentPage++;
+        if (currentPage >= totalPages) currentPage = 0; // loop back to first page
+        updateGalleryDisplay();
+      }
+    }, 3500);
+  }
+
+  function stopAutoSwipe() {
+    if (autoSwipeInterval) clearInterval(autoSwipeInterval);
+  }
+
+  updateGalleryDisplay();
+  startAutoSwipe();
+
+  // Pause autoswipe on hover
+  const galleryWrapper = document.querySelector('.gallery-wrapper');
+  if (galleryWrapper) {
+    galleryWrapper.addEventListener('mouseenter', stopAutoSwipe);
+    galleryWrapper.addEventListener('mouseleave', startAutoSwipe);
+  }
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFilter = btn.getAttribute('data-filter');
+      currentPage = 0;
+      updateGalleryDisplay();
+      startAutoSwipe(); // reset interval on manual click
+    });
+  });
+
   // ===== LIGHTBOX =====
   const lightbox = document.getElementById('lightbox');
   const lightboxImg = document.getElementById('lightboxImg');
   const lightboxClose = document.getElementById('lightboxClose');
 
-  document.querySelectorAll('.tour-item').forEach(item => {
+  document.querySelectorAll('.gallery-item').forEach(item => {
     item.addEventListener('click', () => {
       lightboxImg.src = item.getAttribute('data-src');
       lightbox.classList.add('open');
