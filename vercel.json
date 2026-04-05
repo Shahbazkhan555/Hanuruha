@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "name": "hanuruha-website",
+  "name": "hanuraha-official",
   "builds": [
     {
       "src": "**/*.{html,css,js,png,jpg,jpeg,svg,gif,webp}",
