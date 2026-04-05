@@ -1,19 +1,12 @@
 {
   "version": 2,
   "name": "hanuraha-official",
-  "builds": [
-    {
-      "src": "**/*.{html,css,js,png,jpg,jpeg,svg,gif,webp}",
-      "use": "@vercel/static"
-    }
-  ],
+  "cleanUrls": true,
+  "trailingSlash": false,
   "routes": [
     {
-      "handle": "filesystem"
-    },
-    {
       "src": "/(.*)",
-      "dest": "/index.html"
+      "dest": "/$1"
     }
   ]
 }
