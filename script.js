@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ===== NAVBAR SCROLL EFFECT =====
   const navbar = document.getElementById('navbar');
   const backToTop = document.getElementById('backToTop');
-  
+
   window.addEventListener('scroll', () => {
     if (window.scrollY > 80) {
       navbar.classList.add('scrolled');
@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ===== SCROLL REVEAL ANIMATIONS =====
   const revealElements = document.querySelectorAll('.reveal, .reveal-left, .reveal-right');
-  
+
   const revealObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
@@ -66,22 +66,22 @@ document.addEventListener('DOMContentLoaded', () => {
           const suffix = counter.getAttribute('data-suffix') || '+';
           const duration = 2000;
           const startTime = performance.now();
-          
+
           function updateCounter(currentTime) {
             const elapsed = currentTime - startTime;
             const progress = Math.min(elapsed / duration, 1);
             const easeOut = 1 - Math.pow(1 - progress, 3);
             const current = Math.floor(easeOut * target);
-            
+
             counter.textContent = current + suffix;
-            
+
             if (progress < 1) {
               requestAnimationFrame(updateCounter);
             } else {
               counter.textContent = target + suffix;
             }
           }
-          
+
           requestAnimationFrame(updateCounter);
         });
       }
@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Auto-play carousel
   let autoPlay = setInterval(() => goToSlide(currentSlide + 1), 5000);
-  
+
   const carousel = document.querySelector('.testimonial-carousel');
   carousel.addEventListener('mouseenter', () => clearInterval(autoPlay));
   carousel.addEventListener('mouseleave', () => {
@@ -126,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ===== BOOKING FORM → GOOGLE SHEETS =====
   // ⚠️ REPLACE THIS URL with your deployed Google Apps Script Web App URL
-  const GOOGLE_SCRIPT_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
+  const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx_1vOuRRffa44vonyO-q-q0wyTYgnu5P0jEzgInbOaqW4natESlfJOZGTYFQnCM7FqrQ/exec';
 
   document.getElementById('bookingForm').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -194,18 +194,6 @@ document.addEventListener('DOMContentLoaded', () => {
     chatToggle.querySelector('.notification').style.display = 'none';
   });
 
-  const chatResponses = {
-    'program': 'We offer 6 main programs: Medical Detoxification, Psychiatric Treatment, Individual Therapy, Group Therapy, Yoga & Meditation, and Art & Music Therapy. Each is tailored to your unique needs. Would you like details on any specific program? 🌿',
-    'cost': 'Treatment costs vary based on the program and duration. We offer flexible payment plans and EMI options to make treatment accessible. Would you like to speak with our team about pricing? 💰',
-    'insurance': 'We currently do not support insurance payments, but we do offer flexible payment plans and EMI options. Our team can discuss affordable options that work for you. 📋',
-    'book': 'I\'d love to help you book a consultation! You can schedule an In-Person, Video, or Phone consultation through our booking section. Would you like me to guide you there? 📅',
-    'help': 'You\'re not alone, and taking this step takes incredible courage. 💛 Our team is available 24/7. You can call us at +91 73494 90505 or WhatsApp us anytime. We\'re here for you.',
-    'admission': 'Our admission process is simple and compassionate. It starts with a free consultation, followed by an assessment and personalized treatment plan. We handle everything to make it as smooth as possible for you and your family. 🤝',
-    'location': 'Hanuruha is located in Bangalore, Karnataka, India. We have a serene, home-like campus designed for comfort and healing. Would you like to take a virtual tour of our facility? 📍',
-    'duration': 'Treatment duration typically ranges from 30 to 90 days, depending on individual needs. Some programs offer extended care options. Our team will create a timeline that works best for your recovery journey. ⏰',
-    'family': 'Absolutely! We offer dedicated family therapy sessions and family integration programs. We believe healing is a journey that involves the entire family. Your loved ones are welcome to participate. 👨‍👩‍👧‍👦',
-  };
-
   function addMessage(text, type) {
     const msg = document.createElement('div');
     msg.className = `chat-message ${type}`;
@@ -214,21 +202,14 @@ document.addEventListener('DOMContentLoaded', () => {
     chatMessages.scrollTop = chatMessages.scrollHeight;
   }
 
-  function getBotResponse(message) {
-    const lower = message.toLowerCase();
-    for (const [key, response] of Object.entries(chatResponses)) {
-      if (lower.includes(key)) return response;
-    }
-    return 'Thank you for reaching out! 🌿 For specific queries, I recommend speaking with our team directly. You can call +91 73494 90505 (24/7) or fill out our booking form for a free consultation. Is there anything else I can help with?';
-  }
-
-  function sendMessage() {
-    const text = chatInput.value.trim();
+  async function sendMessage(textOverride = null) {
+    // Determine input text either from parameter (Quick Response) or input field
+    const text = typeof textOverride === 'string' ? textOverride : chatInput.value.trim();
     if (!text) return;
-    
+
     addMessage(text, 'user');
     chatInput.value = '';
-    
+
     // Typing indicator
     const typing = document.createElement('div');
     typing.className = 'chat-message bot';
@@ -236,11 +217,23 @@ document.addEventListener('DOMContentLoaded', () => {
     typing.style.opacity = '0.6';
     chatMessages.appendChild(typing);
     chatMessages.scrollTop = chatMessages.scrollHeight;
-    
-    setTimeout(() => {
+
+    try {
+      const response = await fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: "chat", message: text })
+      });
+
+      const data = await response.json();
       typing.remove();
-      addMessage(getBotResponse(text), 'bot');
-    }, 1000 + Math.random() * 500);
+      addMessage(data.reply || "I'm sorry, I couldn't understand that.", 'bot');
+
+    } catch (error) {
+      console.error('AI Chat Error:', error);
+      typing.remove();
+      addMessage("I'm experiencing connection issues right now. For immediate help, please call +91 7353 836 666.", 'bot');
+    }
   }
 
   chatSend.addEventListener('click', sendMessage);
@@ -248,18 +241,26 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.key === 'Enter') sendMessage();
   });
 
+  // Attach Quick Reply button events
+  const quickReplies = document.querySelectorAll('.quick-reply-btn');
+  quickReplies.forEach(btn => {
+    btn.addEventListener('click', () => {
+      sendMessage(btn.textContent.trim());
+    });
+  });
+
   // ===== GALLERY FILTERING & PAGINATION & AUTOSWIPE =====
   const filterBtns = document.querySelectorAll('.filter-btn');
   const galleryItems = document.querySelectorAll('.gallery-item');
   const pageInfo = document.getElementById('galleryPageInfo');
-  
+
   let currentFilter = 'all';
   let currentPage = 0;
   let autoSwipeInterval;
 
   function updateGalleryDisplay() {
     const itemsPerPageDynamic = window.innerWidth <= 768 ? 1 : (window.innerWidth <= 1024 ? 2 : 3);
-    
+
     const filteredItems = Array.from(galleryItems).filter(item => {
       const match = currentFilter === 'all' || item.classList.contains(currentFilter);
       if (match) {
@@ -272,12 +273,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const totalPages = Math.ceil(filteredItems.length / itemsPerPageDynamic);
     if (currentPage >= totalPages) currentPage = Math.max(0, totalPages - 1);
-    
+
     const galleryGrid = document.querySelector('.gallery-grid');
     if (galleryGrid) {
       if (filteredItems.length > 0) {
         const itemWidth = filteredItems[0].offsetWidth;
-        const gap = 20; 
+        const gap = 20;
         const slideAmount = currentPage * itemsPerPageDynamic * (itemWidth + gap);
         galleryGrid.style.transform = `translateX(-${slideAmount}px)`;
       } else {
@@ -372,7 +373,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ===== SMOOTH SCROLL FOR NAV LINKS =====
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function(e) {
+    anchor.addEventListener('click', function (e) {
       e.preventDefault();
       const target = document.querySelector(this.getAttribute('href'));
       if (target) {
@@ -383,7 +384,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ===== ACTIVE NAV LINK HIGHLIGHT =====
   const sections = document.querySelectorAll('section[id]');
-  
+
   window.addEventListener('scroll', () => {
     const scrollY = window.scrollY + 150;
     sections.forEach(section => {
@@ -424,12 +425,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // ===== TEXTAREA FOCUS STYLE =====
   const textarea = document.getElementById('bookMessage');
   if (textarea) {
-    textarea.addEventListener('focus', function() {
+    textarea.addEventListener('focus', function () {
       this.style.borderColor = '#F08321';
       this.style.background = '#fff';
       this.style.boxShadow = '0 0 0 4px rgba(240,131,33,0.1)';
     });
-    textarea.addEventListener('blur', function() {
+    textarea.addEventListener('blur', function () {
       this.style.borderColor = '';
       this.style.background = '';
       this.style.boxShadow = '';
